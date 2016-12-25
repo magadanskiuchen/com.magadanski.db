@@ -19,15 +19,15 @@ define('com.magadanski.db.DB', function () {
 	
 	// private methods
 	
-	var DB = function (options) {
+	var DB = function (options, autoOpen) {
 		that = this;
 		
 		// priviledged properties
 		that.options = utils.extendOptions(that.defaultInitOptions, options);
 		
 		// priviledged methods
-		that.open = function () {
-			
+		that.open = function (e) {
+			that.dispatchEvent('created');
 		}
 		
 		// constructor
@@ -37,6 +37,10 @@ define('com.magadanski.db.DB', function () {
 		
 		if (typeof(that.options.onCreated) === 'function') {
 			that.addEventListener('created', that.options.onCreated);
+		}
+		
+		if (typeof(autoOpen) === 'undefined' || autoOpen !== false) {
+			that.open();
 		}
 	}
 	
@@ -52,4 +56,24 @@ define('com.magadanski.db.DB', function () {
 	};
 	
 	// public methods
+	DB.prototype.calcSize = function (textSize) {
+		var byteSize = parseInt(textSize);
+		
+		try {
+			switch (textSize.match(/(\D)B?/)[1].toLowerCase()) {
+				case 't':
+					byteSize *= 1024;
+				case 'g':
+					byteSize *= 1024;
+				case 'm':
+					byteSize *= 1024;
+				case 'k':
+					byteSize *= 1024;
+			}
+		} catch (ex) {
+			// use original byteSize value
+		}
+		
+		return byteSize;
+	}
 });
